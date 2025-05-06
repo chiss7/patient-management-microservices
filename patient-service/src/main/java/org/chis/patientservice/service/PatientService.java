@@ -1,6 +1,7 @@
 package org.chis.patientservice.service;
 
 import lombok.RequiredArgsConstructor;
+import org.chis.patientservice.dto.PatientRequestDTO;
 import org.chis.patientservice.dto.PatientResponseDTO;
 import org.chis.patientservice.mapper.PatientMapper;
 import org.chis.patientservice.model.Patient;
@@ -19,5 +20,10 @@ public class PatientService {
         return patients.stream()
                 .map(PatientMapper::toDTO)
                 .toList();
+    }
+
+    public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO) {
+        Patient patient = patientRepository.save(PatientMapper.toModel(patientRequestDTO));
+        return PatientMapper.toDTO(patient);
     }
 }
