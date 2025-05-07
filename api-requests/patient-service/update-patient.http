@@ -4,9 +4,8 @@ Content-Type: application/json
 
 {
   "name": "Chris Trujillo",
-  "email": "isabella.walker2@example.com",
+  "email": "isabella.walker3@example.com",
   "address": "some address",
-  "dateOfBirth": "2000-04-23",
-  "registeredDate": "2025-05-06"
+  "dateOfBirth": "2000-04-23"
 }
 ###

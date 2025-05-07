@@ -2,8 +2,8 @@ package org.chis.patientservice.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.chis.patientservice.dto.validators.CreatePatientValidationGroup;
 
 public record PatientRequestDTO(
         @NotBlank(message = "Name is required")
@@ -16,7 +16,7 @@ public record PatientRequestDTO(
         String address,
         @NotBlank(message = "Date of birth is required")
         String dateOfBirth,
-        @NotNull(message = "Registered date is required")
+        @NotBlank(groups = CreatePatientValidationGroup.class, message = "Registered date is required")
         String registeredDate
 ) {
 }
