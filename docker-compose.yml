@@ -1,0 +1,38 @@
+services:
+  postgres:
+    container_name: postgres-patient-management
+    image: postgres
+    environment:
+      POSTGRES_USER: chis
+      POSTGRES_PASSWORD: chis
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_DB: patient-management-db
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - 5432:5432
+    networks:
+      - patient-network
+    restart: unless-stopped
+
+  patient-service:
+    container_name: patient-service
+    image: api-patient-service:latest
+    build:
+      context: ./patient-service
+      dockerfile: Dockerfile
+    ports:
+      - 4000:4000
+    depends_on:
+      - postgres
+    networks:
+      - patient-network
+    restart: unless-stopped
+
+networks:
+  patient-network:
+    driver: bridge
+
+volumes:
+  postgres:
+    driver: local
