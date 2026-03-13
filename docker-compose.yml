@@ -35,6 +35,7 @@ services:
       SPRING_SQL_INIT_MODE: always
       BILLING_SERVICE_HOST: billing-service
       BILLING_SERVICE_GRPC_PORT: 9001
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     restart: unless-stopped
 
   billing-service:
@@ -49,6 +50,38 @@ services:
     depends_on:
       - postgres
       - patient-service
+    networks:
+      - patient-network
+    restart: unless-stopped
+
+  kafka:
+    container_name: kafka
+    image: apache/kafka:latest
+    ports:
+      - 9092:9092
+      - 9094:9094
+    environment:
+      # Unique identifier for this Kafka node
+      KAFKA_NODE_ID: 1
+      # Runs as both controller and broker (single-node KRaft mode, no Zookeeper needed)
+      KAFKA_PROCESS_ROLES: broker,controller
+      # Listeners: 9092 for internal Docker communication, 9093 for controller, 9094 for external (host) access
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      # Advertised addresses: kafka:9092 for containers, localhost:9094 for host machine
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      # Specifies which listener is used for controller communication
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      # Security protocol for each listener (all using PLAINTEXT)
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      # Defines the controller quorum: node 1 at kafka:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      # Replication factor for internal topics (set to 1 for single-node setup)
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      # Minimum in-sync replicas for transaction state log (set to 1 for single-node setup)
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      # No delay for consumer group rebalance (faster startup in development)
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
     networks:
       - patient-network
     restart: unless-stopped

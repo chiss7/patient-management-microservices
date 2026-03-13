@@ -15,6 +15,12 @@ spring:
     init:
       mode: ${SPRING_SQL_INIT_MODE:always}
 
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+
 server:
   port: 4000
 

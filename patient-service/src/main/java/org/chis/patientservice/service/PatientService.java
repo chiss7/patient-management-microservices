@@ -6,6 +6,8 @@ import org.chis.patientservice.dto.PatientResponseDTO;
 import org.chis.patientservice.exception.EmailAlreadyExistsException;
 import org.chis.patientservice.exception.PatientNotFoundException;
 import org.chis.patientservice.grpc.BillingServiceGrpcClient;
+import org.chis.patientservice.kafka.KafkaProducer;
+import org.chis.patientservice.kafka.PatientEventType;
 import org.chis.patientservice.mapper.PatientMapper;
 import org.chis.patientservice.model.Patient;
 import org.chis.patientservice.repository.PatientRepository;
@@ -21,6 +23,7 @@ import java.util.UUID;
 public class PatientService {
     private final PatientRepository patientRepository;
     private final BillingServiceGrpcClient billingServiceGrpcClient;
+    private final KafkaProducer kafkaProducer;
 
     public List<PatientResponseDTO> getPatients() {
         List<Patient> patients = patientRepository.findAll();
@@ -36,6 +39,7 @@ public class PatientService {
         }
         Patient patient = patientRepository.save(PatientMapper.toModel(patientRequestDTO));
         billingServiceGrpcClient.createBillingAccount(patient.getId().toString(), patient.getName(), patient.getEmail());
+        kafkaProducer.sendEvent(patient, PatientEventType.CREATED);
         return PatientMapper.toDTO(patient);
     }
 
@@ -50,10 +54,14 @@ public class PatientService {
         patient.setEmail(patientRequestDTO.email());
         patient.setDateOfBirth(LocalDate.parse(patientRequestDTO.dateOfBirth()));
         Patient updatedPatient = patientRepository.save(patient);
+        kafkaProducer.sendEvent(updatedPatient, PatientEventType.UPDATED);
         return PatientMapper.toDTO(updatedPatient);
     }
 
     public void deletePatient(UUID id) {
-        patientRepository.deleteById(id);
+        Patient patient = patientRepository.findById(id).orElseThrow(
+                () -> new PatientNotFoundException("Patient not found with Id: " + id));
+        patientRepository.delete(patient);
+        kafkaProducer.sendEvent(patient, PatientEventType.DELETED);
     }
 }
