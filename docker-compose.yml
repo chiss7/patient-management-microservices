@@ -27,6 +27,14 @@ services:
       - postgres
     networks:
       - patient-network
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-patient-management:5432/patient-management-db
+      SPRING_DATASOURCE_USERNAME: chis
+      SPRING_DATASOURCE_PASSWORD: chis
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SQL_INIT_MODE: always
+      BILLING_SERVICE_HOST: billing-service
+      BILLING_SERVICE_GRPC_PORT: 9001
     restart: unless-stopped
 
   billing-service:

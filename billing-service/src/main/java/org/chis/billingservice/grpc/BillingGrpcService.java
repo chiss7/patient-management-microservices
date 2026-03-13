@@ -16,17 +16,24 @@ public class BillingGrpcService extends BillingServiceGrpc.BillingServiceImplBas
     @Override
     public void createBillingAccount(BillingRequest request, StreamObserver<BillingResponse> responseObserver) {
         log.info("Creating billing account for request: {}", request.toString());
+
+        if (request.getPatientId().isBlank()) {
+            throw new IllegalArgumentException("Patient ID is required");
+        }
+        if (request.getName().isBlank()) {
+            throw new IllegalArgumentException("Name is required");
+        }
+        if (request.getEmail().isBlank()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+
         // business logic
         BillingResponse response = BillingResponse.newBuilder()
                 .setAccountId("123")
                 .setStatus("ACTIVE")
                 .build();
 
-        // send a response from our grpc service to the client
-        // we can return as many responses as we want before we decide to complete the request
         responseObserver.onNext(response);
-
-        // response is completed, and we are ready to end the cycle in this response
         responseObserver.onCompleted();
     }
 }

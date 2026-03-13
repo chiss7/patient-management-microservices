@@ -2,27 +2,26 @@ spring:
   application:
     name: patient-service
 
-#  h2:
-#    console:
-#      path: /h2-console
-#
-#  datasource:
-#    url: jdbc:h2:mem:test_db
-#    driver-class-name: org.h2.Driver
-#    username: admin
-#    password: password
-#
-#  jpa:
-#    database-platform: org.hibernate.dialect.H2Dialect
-#    hibernate:
-#      ddl-auto: update
-#
-#  sql:
-#    init:
-#      mode: always
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/patient-management-db}
+    username: ${SPRING_DATASOURCE_USERNAME:chis}
+    password: ${SPRING_DATASOURCE_PASSWORD:chis}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+
+  sql:
+    init:
+      mode: ${SPRING_SQL_INIT_MODE:always}
 
 server:
   port: 4000
+
+billing-service:
+  host: ${BILLING_SERVICE_HOST:localhost}
+  grpc:
+    port: ${BILLING_SERVICE_GRPC_PORT:9001}
 
 logging:
   level:

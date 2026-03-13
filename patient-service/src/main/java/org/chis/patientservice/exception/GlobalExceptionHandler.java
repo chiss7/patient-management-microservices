@@ -2,6 +2,7 @@ package org.chis.patientservice.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,5 +36,13 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         errors.put("message", ex.getMessage());
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(BillingAccountCreationException.class)
+    public ResponseEntity<Map<String, String>> handleBillingAccountCreationException(BillingAccountCreationException ex) {
+        log.error("Billing account creation failed: {}", ex.getMessage());
+        Map<String, String> errors = new HashMap<>();
+        errors.put("message", "Failed to create billing account. Please try again later.");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errors);
     }
 }
