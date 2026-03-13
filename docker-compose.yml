@@ -29,6 +29,22 @@ services:
       - patient-network
     restart: unless-stopped
 
+  billing-service:
+    container_name: billing-service
+    image: api-billing-service:latest
+    build:
+      context: ./billing-service
+      dockerfile: Dockerfile
+    ports:
+      - 4001:4001
+      - 9001:9001
+    depends_on:
+      - postgres
+      - patient-service
+    networks:
+      - patient-network
+    restart: unless-stopped
+
 networks:
   patient-network:
     driver: bridge
